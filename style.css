@@ -1,3 +1,4 @@
+
 .cube-net {
     display: grid;
     grid-template-columns: repeat(4, 150px);
@@ -120,3 +121,20 @@
     transform: rotateX(-90deg) translateZ(45px);
 }
 
+
+
+.layer {
+    position: absolute;
+    width: 90px;
+    height: 90px;
+
+    transform-style: preserve-3d;
+
+    transition: transform 0.3s ease;
+    transform-origin: center center;
+
+    transition: transform 0.5s ease;
+    transform: rotateZ(0deg);
+
+
+}

@@ -105,6 +105,7 @@ class Cube {
     move(key, shiftPressed) {
         switch (key) {
             case "f":
+                this.#animateF();
                 if (shiftPressed) {
                     this.#rotateFrontPrime();
                 } else {
@@ -517,6 +518,7 @@ class Cube {
     #colorCubies() {
         const cube = document.querySelector("#cube");
         for (const cubie of cube.children) {
+            console.log(cubie);
             const x = Number(cubie.position.x);
             const y = Number(cubie.position.y);
             const z = Number(cubie.position.z);
@@ -585,6 +587,7 @@ class Cube {
         const key = `${x}${y}${z}`;
         const data = mapping[key];
 
+
         if (key in mapping) {
 
             for (const [key, value] of Object.entries(data)) {
@@ -597,6 +600,62 @@ class Cube {
                 this.#colorPartOfCubie(cubie, partOfCube, color);
             }
         }
+    }
+
+    #rotateCoords(a, b) {
+        return [b, -a];
+    }
+
+    #animateF() {
+        const cube = document.querySelector("#cube");
+
+        const layer = document.createElement("div");
+        layer.classList.add("layer");
+
+        for (const cubie of [...cube.children]) {;
+            if (cubie.position.z == 1) {
+                layer.appendChild(cubie);
+            }
+        }
+
+        cube.appendChild(layer);
+
+        layer.style.transform = "rotateZ(0deg)";
+
+        layer.offsetHeight;
+
+        layer.style.transform = "rotateZ(90deg)";
+
+        
+        
+        layer.addEventListener("transitionend", () => {
+
+        for (const cubie of [...layer.children]) {
+            const x = cubie.position.x;
+            const y = cubie.position.y;
+
+            const [newX, newY] = this.#rotateCoords(x, y);
+
+            cubie.position.x = newX;
+            cubie.position.y = newY;
+
+            cube.appendChild(cubie);
+        }
+
+        layer.remove();
+
+        for (const cubie of [...cube.children]) {
+            console.log(cubie);
+        }
+        
+
+    });
+    
+
+    }
+
+    #animateSide(side) {
+        this.#animateF();
     }
 
 }
