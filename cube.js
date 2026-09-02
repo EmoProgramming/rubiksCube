@@ -3,11 +3,14 @@ class Cube {
     #sides;
     #COLORS;
     #MOVES;
+    #animating;
 
-
+    // x - right, y - down,  z - front
 
 
     constructor() {
+        this.#animating = false;
+
         this.#COLORS = {
             W: "white",
             Y: "yellow",
@@ -55,36 +58,16 @@ class Cube {
             ]
         };
 
-        this.#MOVES = Object.freeze({
-            U: "U",
-            U_PRIME: "U'",
-            U2: "U2",
+        
 
-            D: "D",
-            D_PRIME: "D'",
-            D2: "D2",
+        this.#MOVES = ["F", "B", "R", "L", "U", "D"];
 
-            F: "F",
-            F_PRIME: "F'",
-            F2: "F2",
-
-            B: "B",
-            B_PRIME: "B'",
-            B2: "B2",
-
-            L: "L",
-            L_PRIME: "L'",
-            L2: "L2",
-
-            R: "R",
-            R_PRIME: "R'",
-            R2: "R2"
-        });
 
         this.#setupKeyboard();
         this.#renderCube2D();
         this.#createCubies();
         this.#renderCube3D();
+        this.#rotateCube();
     }
 
 
@@ -102,63 +85,28 @@ class Cube {
 
     }
 
-    move(key, shiftPressed) {
-        switch (key) {
-            case "f":
-                this.#animateF();
-                if (shiftPressed) {
-                    this.#rotateFrontPrime();
-                } else {
-                    this.#rotateFront();
-                }
-                break;
+    async move(key, shiftPressed) {
 
-            case "r":
-                if (shiftPressed) {
-                    this.#rotateRightPrime();
-                } else {
-                    this.#rotateRight();
-                }
-                break;
+        let clockWise;
 
-            case "l":
-                if (shiftPressed) {
-                    this.#rotateLeftPrime();
-                } else {
-                    this.#rotateLeft();
-                }
-                break;
-
-            case "d":
-                if (shiftPressed) {
-                    this.#rotateDownPrime();
-                } else {
-                    this.#rotateDown();
-                }
-                break;
-
-            case "u":
-                if (shiftPressed) {
-                    this.#rotateUpPrime();
-                } else {
-                    this.#rotateUp();
-                }
-                break;
-
-            case "b":
-                if (shiftPressed) {
-                    this.#rotateBackPrime();
-                } else {
-                    this.#rotateBack();
-                }
-                break;
+        if (shiftPressed) {
+            clockWise = false;
+        } else {
+            clockWise = true;
         }
 
-        this.#renderCube2D();
-        this.#renderCube3D();
+        if (this.#animating) {
+            return;
+        } else {
+            this.#animating = true;
+            await this.#animateAndMove(key, clockWise, shiftPressed);
+            this.#animating = false;
+        }
+
+
     }
 
-    logCube() {
+    #logCube() {
         console.log(this.#sides);
     }
 
@@ -275,7 +223,7 @@ class Cube {
         }
     }
 
-    #rotateSide(sideMoves) {
+    #rotateSides(sideMoves) {
         let dataForNextIter, data;
         const lastSide = sideMoves[sideMoves.length - 1].side;
         const lastPart = sideMoves[sideMoves.length - 1].part;
@@ -307,7 +255,7 @@ class Cube {
             {side:this.#sides.L, part:"rightCol", reversed:false}
         ]
 
-        this.#rotateSide(sideMoves);
+        this.#rotateSides(sideMoves);
 
     }
 
@@ -327,7 +275,7 @@ class Cube {
             {side:this.#sides.D, part:"rightCol", reversed:true}
         ]
 
-        this.#rotateSide(sideMoves);
+        this.#rotateSides(sideMoves);
     }
 
     #rotateRightPrime() {
@@ -346,7 +294,7 @@ class Cube {
             {side:this.#sides.B, part:"rightCol", reversed:true}
         ]
 
-        this.#rotateSide(sideMoves);
+        this.#rotateSides(sideMoves);
     }
 
     #rotateLeftPrime() {
@@ -365,7 +313,7 @@ class Cube {
             {side:this.#sides.R, part:"upRow", reversed:false}
         ]
 
-        this.#rotateSide(sideMoves);
+        this.#rotateSides(sideMoves);
     }
 
     #rotateUpPrime() {
@@ -379,12 +327,12 @@ class Cube {
         this.#sides.D = this.#rotateFacingSideRight(facingSide);
         const sideMoves = [
             {side:this.#sides.F, part:"downRow", reversed:false},
-            {side:this.#sides.L, part:"downRow", reversed:false},
+            {side:this.#sides.R, part:"downRow", reversed:false},
             {side:this.#sides.B, part:"downRow", reversed:false},
-            {side:this.#sides.R, part:"downRow", reversed:false}
+            {side:this.#sides.L, part:"downRow", reversed:false}
         ]
 
-        this.#rotateSide(sideMoves);
+        this.#rotateSides(sideMoves);
     }
 
     #rotateDownPrime() {
@@ -403,7 +351,7 @@ class Cube {
             {side:this.#sides.D, part:"downRow", reversed:false}
         ]
 
-        this.#rotateSide(sideMoves);
+        this.#rotateSides(sideMoves);
     }
 
     #rotateBackPrime() {
@@ -468,7 +416,7 @@ class Cube {
         }
     }
 
-    rotateCube() {
+    #rotateCube() {
         const cube = document.querySelector("#cube");
 
         let isDragging = false;
@@ -518,7 +466,7 @@ class Cube {
     #colorCubies() {
         const cube = document.querySelector("#cube");
         for (const cubie of cube.children) {
-            console.log(cubie);
+            //console.log(cubie);
             const x = Number(cubie.position.x);
             const y = Number(cubie.position.y);
             const z = Number(cubie.position.z);
@@ -602,61 +550,197 @@ class Cube {
         }
     }
 
-    #rotateCoords(a, b) {
-        return [b, -a];
+
+    #rotateAnimation(element, side, clockwise) {
+        let rotation1, rotationClockwise, rotationAntiClockwise;
+        switch (side) {
+            case "F":
+                rotation1 = "rotateZ(0deg)";
+                rotationClockwise = "rotateZ(90deg)";
+                rotationAntiClockwise = "rotateZ(-90deg)"
+                break;
+            case "B":
+                rotation1 = "rotateZ(0deg)";
+                rotationClockwise = "rotateZ(-90deg)";
+                rotationAntiClockwise = "rotateZ(90deg)";
+                break;
+            case "R":
+                rotation1 = "rotateX(0deg)";
+                rotationClockwise = "rotateX(90deg)";
+                rotationAntiClockwise = "rotateX(-90deg)";
+                break;
+            case "L":
+                rotation1 = "rotateX(0deg)";
+                rotationClockwise = "rotateX(-90deg)";
+                rotationAntiClockwise = "rotateX(90deg)";
+                break;
+            case "D":
+                rotation1 = "rotateY(0deg)";
+                rotationClockwise = "rotateY(90deg)";
+                rotationAntiClockwise = "rotateY(-90deg)";
+                break;
+            case "U":
+                rotation1 = "rotateY(0deg)";
+                rotationClockwise = "rotateY(-90deg)";
+                rotationAntiClockwise = "rotateY(90deg)";
+                break;
+      }
+
+
+        if (clockwise) {
+            element.style.transform = rotation1;
+            element.offsetHeight;
+            element.style.transform = rotationClockwise;
+        } else {
+            element.style.transform = rotation1;
+            element.offsetHeight;
+            element.style.transform = rotationAntiClockwise;
+        }
+
     }
 
-    #animateF() {
-        const cube = document.querySelector("#cube");
+
+    #createLayerForSide(cube, side) {
 
         const layer = document.createElement("div");
         layer.classList.add("layer");
 
-        for (const cubie of [...cube.children]) {;
-            if (cubie.position.z == 1) {
-                layer.appendChild(cubie);
-            }
+        switch (side) {
+            case "F":
+                for (const cubie of [...cube.children]) {;
+                    if (cubie.position.z == 1) {
+                        layer.appendChild(cubie);
+                    }
+                }
+                break;
+            case "B":
+                for (const cubie of [...cube.children]) {;
+                    if (cubie.position.z == -1) {
+                        layer.appendChild(cubie);
+                    }
+                }
+                break;
+            case "R":
+                for (const cubie of [...cube.children]) {;
+                    if (cubie.position.x == 1) {
+                        layer.appendChild(cubie);
+                    }
+                }
+                break;
+            case "L":
+                for (const cubie of [...cube.children]) {;
+                    if (cubie.position.x == -1) {
+                        layer.appendChild(cubie);
+                    }
+                }
+                break;
+            case "U":
+                for (const cubie of [...cube.children]) {;
+                    if (cubie.position.y == -1) {
+                        layer.appendChild(cubie);
+                    }
+                }
+                break;
+            case "D":
+                for (const cubie of [...cube.children]) {;
+                    if (cubie.position.y == 1) {
+                        layer.appendChild(cubie);
+                    }
+                }
+                break;
+            
         }
-
-        cube.appendChild(layer);
-
-        layer.style.transform = "rotateZ(0deg)";
-
-        layer.offsetHeight;
-
-        layer.style.transform = "rotateZ(90deg)";
-
-        
-        
-        layer.addEventListener("transitionend", () => {
-
-        for (const cubie of [...layer.children]) {
-            const x = cubie.position.x;
-            const y = cubie.position.y;
-
-            const [newX, newY] = this.#rotateCoords(x, y);
-
-            cubie.position.x = newX;
-            cubie.position.y = newY;
-
-            cube.appendChild(cubie);
-        }
-
-        layer.remove();
-
-        for (const cubie of [...cube.children]) {
-            console.log(cubie);
-        }
-        
-
-    });
+        return layer;
+    }
     
 
+    #rotateSide(key, shiftPressed) {
+        switch (key) {
+            case "f":
+                if (shiftPressed) {
+                    this.#rotateFrontPrime();
+                } else {
+                    this.#rotateFront();;
+                }
+                break;
+
+            case "r":
+                if (shiftPressed) {
+                    this.#rotateRightPrime();
+                } else {
+                    this.#rotateRight();
+                }
+                break;
+
+            case "l":
+                if (shiftPressed) {
+                    this.#rotateLeftPrime();
+                } else {
+                    this.#rotateLeft();
+                }
+                break;
+
+            case "d":
+                if (shiftPressed) {
+                    this.#rotateDownPrime();
+                } else {
+                    this.#rotateDown();
+                }
+                break;
+
+            case "u":
+                if (shiftPressed) {
+                    this.#rotateUpPrime();
+                } else {
+                    this.#rotateUp();
+                }
+                break;
+
+            case "b":
+                if (shiftPressed) {
+                    this.#rotateBackPrime();
+                } else {
+                    this.#rotateBack();
+                }
+                break;
+        }
     }
 
-    #animateSide(side) {
-        this.#animateF();
+
+    #animateAndMove(key, clockwise = true, shiftPressed) {
+        const side = key.toUpperCase();
+        console.log(side);
+        const cube = document.querySelector("#cube");
+
+        const layer = this.#createLayerForSide(cube, side);
+
+        cube.appendChild(layer);
+        
+        return new Promise(resolve => {
+
+            layer.addEventListener("transitionend", () => {
+                for (const cubie of [...layer.children]) {
+                    cube.appendChild(cubie);
+                    //console.log(cubie.position.x, cubie.position.y, cubie.position.z);
+                }
+
+                layer.remove();
+
+                this.#rotateSide(key, shiftPressed);
+                this.#renderCube2D();
+                this.#renderCube3D();
+                
+                resolve();
+            }, { once: true });
+
+        this.#rotateAnimation(layer, side, clockwise);
+
+        });
+
+
     }
+    
+
 
 }
 
@@ -664,7 +748,7 @@ class Cube {
 
 function main() {
     const cube = new Cube();
-    cube.rotateCube();
+
 }
 
 main();
