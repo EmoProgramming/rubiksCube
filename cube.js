@@ -60,7 +60,9 @@ class Cube {
 
         
 
-        this.#MOVES = ["F", "B", "R", "L", "U", "D"];
+        this.#MOVES = ["F", "B", "R", "L", "U", "D",
+            "F'", "B'", "R'", "L'", "U'", "D'"
+        ];
 
 
         this.#setupKeyboard();
@@ -737,9 +739,61 @@ class Cube {
 
         });
 
+    }
 
+    doMove(side) {
+        switch (side) {
+            case "F":
+                this.#rotateFront();
+                break;
+            case "F'":
+                this.#rotateFrontPrime();
+                break;
+            case "B":
+                this.#rotateBack();
+                break;
+            case "B'":
+                this.#rotateBackPrime();
+                break;
+            case "R":
+                this.#rotateRight();
+                break;
+            case "R'":
+                this.#rotateRightPrime();
+                break;
+            case "L":
+                this.#rotateLeft();
+                break;
+            case "L'":
+                this.#rotateLeftPrime();
+                break;
+            case "U":
+                this.#rotateUp();
+                break;
+            case "U'":
+                this.#rotateUpPrime();
+                break;
+            case "D":
+                this.#rotateDown();
+                break;
+            case "D'":
+                this.#rotateDownPrime();
+                break;
+        }
     }
     
+
+    scrambleCube() {
+        let randomMoves = [];
+        for (let i = 0; i < 20; i++) {
+
+            const randomMove = this.#MOVES[Math.floor(Math.random() * this.#MOVES.length)];
+            this.doMove(randomMove);
+            
+        }
+
+        this.#renderCube3D();
+    }
 
 
 }
@@ -748,6 +802,7 @@ class Cube {
 
 function main() {
     const cube = new Cube();
+    cube.scrambleCube();
 
 }
 
