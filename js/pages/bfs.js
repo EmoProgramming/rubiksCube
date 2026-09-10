@@ -7,7 +7,9 @@ export function bfsPage() {
     const cubeController = new Interface(cube);
     const solver = new BFS(cube);
 
-    cube.scrambleCube();
+    const depth = 4
+
+    cube.scrambleCube(depth);
     
     const solution = solver.solve(5);
 
