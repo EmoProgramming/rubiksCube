@@ -1,10 +1,9 @@
-class Cube {
+export class Cube {
     //PRIVATE
     #sides;
     #COLORS;
     MOVES;
     #animating;
-    #solvedState;
 
     // x - right, y - down,  z - front
 
@@ -65,7 +64,7 @@ class Cube {
             "F'", "B'", "R'", "L'", "U'", "D'"
         ];
 
-        this.#solvedState = this.getCurrentState();
+        this.solvedState = this.getCurrentState();
         //this.#renderCube2D();
         this.#createCubies();
         this.#renderCube3D();
@@ -432,6 +431,7 @@ class Cube {
     #colorCubies() {
         const cube = document.querySelector("#cube");
         for (const cubie of cube.children) {
+            //console.log(cubie);
             const x = Number(cubie.position.x);
             const y = Number(cubie.position.y);
             const z = Number(cubie.position.z);
@@ -639,7 +639,7 @@ class Cube {
         return layer;
     }
 
-    #moveWithoutAnimation(side) {
+    moveWithoutAnimation(side) {
         switch (side) {
             case "F":
                 this.#rotateFront();
@@ -697,7 +697,7 @@ class Cube {
 
                 layer.remove();
 
-                this.#moveWithoutAnimation(side);
+                this.moveWithoutAnimation(side);
                 //this.#renderCube2D();
                 this.#renderCube3D();
                 
@@ -727,12 +727,12 @@ class Cube {
         for (let i = 0; i < 3; i++) {
 
             const randomMove = this.MOVES[Math.floor(Math.random() * this.MOVES.length)];
-            this.#moveWithoutAnimation(randomMove);
+            this.moveWithoutAnimation(randomMove);
             randomMoves.push(randomMove);
             
         }
 
-        console.log(randomMoves);
+        //console.log(randomMoves);
 
         this.#renderCube3D();
     }
@@ -754,7 +754,7 @@ class Cube {
 
     }
 
-    statifyString(string) {
+    #statifyString(string) {
         let index = 0;
         for (const key of Object.keys(this.#sides)) {
             const side = this.#sides[key];
@@ -812,264 +812,21 @@ class Cube {
             }
     }
 
-    DFSStates() {
-        const beginningState = this.getCurrentState();
-        const currDepth = 0;
-        const maxDepth = 10;
-        const visitedStates = new Map();
-        const moves = [];
-
-        const found = this.dfs(visitedStates, currDepth, maxDepth-1, moves, null);
-        console.log(moves);
-    }
-
-    dfs(visitedStates, currDepth, maxDepth, moves, previousMove) {
-
-        const state = this.getCurrentState();
-
-        if (state === this.#solvedState) {
-            console.log("SOLVED");
-            return true;
-        }
-
-        if  (currDepth > maxDepth) {
-            return false;
-        }
-        
-        const previousDepth = visitedStates.get(state);
-
-        if (previousDepth !== undefined && previousDepth <= currDepth) {
-            return false;
-        }
-
-        visitedStates.set(state, currDepth);
-
-        for (const move of this.MOVES) {
-
-            const oppositeMove = this.getOppositeMove(move);
-
-            if (previousMove !== null && move === this.getOppositeMove(previousMove)) {
-                continue;
-            }
-            
-            this.#moveWithoutAnimation(move);
-            moves.push(move);
-
-            const found = this.dfs(visitedStates, currDepth + 1, maxDepth, moves, move);
-
-            if (found) {
-                this.#moveWithoutAnimation(oppositeMove);
-                return true;
-            }
-
-            this.#moveWithoutAnimation(oppositeMove);
-            moves.pop();
-            
-        }
-
-        return false;
-
+    isSolved() {
+        return this.getCurrentState() === this.solvedState;
     }
 
     sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    BFSStates() {
+    clone() {
+        const newCube = new Cube();
 
-        const waweCountMax = 4;
+        newCube.#statifyString(this.getCurrentState());
 
-        const beginningState = this.getCurrentState();
-        let thisWawe = [beginningState];
-        let nextWawe = [];
-        let waweCount = 0;
-        let thisState;
-
-        let visitedStates = new Map();
-
-        visitedStates.set(beginningState, {
-                previousState: null,
-                move: null
-            });
-
-        console.log(thisWawe);
-
-        while (thisWawe.length != 0) {
-
-
-            for (const state of thisWawe) {
-
-                thisState = state;
-                this.statifyString(thisState);
-
-                for (const move of this.MOVES) {
-
-                    const oppostieMove = this.getOppositeMove(move);
-
-                    this.#moveWithoutAnimation(move);
-
-                    const newState = this.getCurrentState();
-
-                    const previousState = visitedStates.get(newState);
-
-                    if (previousState !== undefined) {
-                        this.#moveWithoutAnimation(oppostieMove);
-                        continue;
-                    }
-
-                    visitedStates.set(newState, {
-                            previousState: thisState,
-                            move: move
-                        });
-
-                    if (newState === this.#solvedState) {
-
-                        let curr = this.#solvedState;
-                        console.log(curr);
-
-                        while (curr !== null) {
-                            curr = visitedStates.get(curr);
-
-                            console.log(curr.move);
-                            curr = curr.previousState;
-                        }
-                        return true;
-                    }
-
-                    nextWawe.push(newState);
-                    this.#moveWithoutAnimation(oppostieMove);
-                    
-                }
-
-            }
-
-        if (waweCount >= waweCountMax) {
-            return false;
-        }
-
-        console.log(nextWawe);
-
-        waweCount += 1;
-        thisWawe = [...nextWawe];
-        nextWawe = [];
-
-    }
-
-    
-
-
-}
-
-}
-
-class Interface {
-
-    #cube;
-
-    constructor(cube) {
-        this.#cube = cube;
-        this.#moveWithKey();
-    }
-
-    #mapKeyToSide(key, shiftPressed) {
-        let side;
-        switch (key) {
-            case "f":
-                if (shiftPressed) {
-                    side = "F'";
-                } else {
-                    side = "F";
-                }
-                break;
-
-            case "r":
-                if (shiftPressed) {
-                    side = "R'";
-                } else {
-                    side = "R";
-                }
-                break;
-
-            case "l":
-                if (shiftPressed) {
-                    side = "L'";
-                } else {
-                    side = "L";
-                }
-                break;
-
-            case "d":
-                if (shiftPressed) {
-                    side = "D'";
-                } else {
-                    side = "D";
-                }
-                break;
-
-            case "u":
-                if (shiftPressed) {
-                    side = "U'";
-                } else {
-                    side = "U";
-                }
-                break;
-
-            case "b":
-                if (shiftPressed) {
-                    side = "B'";
-                } else {
-                    side = "B";
-                }
-                break;
-        }
-
-        return side;
-    }
-
-
-    #moveWithKey() {
-
-        document.addEventListener("keydown", (event) => {
-
-            const key = event.key.toLowerCase();
-            const isUpper = event.shiftKey;
-
-
-            if (["f", "r", "u", "d", "l", "b"].includes(key)) {
-                const side = this.#mapKeyToSide(key, isUpper);
-                this.#cube.move(side);
-                }
-        });
-
-    }
-}
-
-async function mainPage() {
-    const cube = new Cube();
-    const cubeController = new Interface(cube);
-
-    cube.scrambleCube();
-
-    let scrambled = cube.stringifyState();
-    await cube.sleep(5000);
-    //cube.statifyString("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW");
-    //cube.DFSStates();
-    console.log(cube.BFSStates());
-    cube.statifyString(scrambled);
-    //cube.stringifyState();
-
-    //cube.scrambleCube();
-}
-
-function main() {
-    const page = document.body.dataset.page;
-
-    if (page === "home") {
-        mainPage();
-    } else if (page === "dfs") {
-        mainPage();
+        return newCube;
     }
 
 }
 
-main();
