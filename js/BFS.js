@@ -1,46 +1,55 @@
+import { Cube } from "./cube.js";
+
 export class BFS {
     constructor(cube) {
         this.cube = cube;
     }
 
-    reconstructPath(curr, moves, visitedStates) {
+    reconstructPath(solvedCube, moves, visitedCubes) {
+
+        let curr = solvedCube;
+        console.log(curr);
+
         while (curr !== null) {
-            curr = visitedStates.get(curr);
+            let node = visitedCubes.get(curr.getCurrentState());
+            console.log(node);
             
-            if (curr.move !== null) {
-                moves.push(curr.move);
+            if (node.move !== null) {
+                moves.push(node.move);
             }
-            curr = curr.previousState;
+            curr = node.previousCube;
         }
 
         return moves;
     }
 
-    handleIfSolved(beginningState, visitedStates) {
+    handleIfSolved(solvedCube, visitedCubes) {
 
-        let curr = this.solvedState;
+        let curr = solvedCube;
         //console.log(curr);
+        //console.log(solvedCube);
 
         let moves =[];
-        this.reconstructPath(curr, moves, visitedStates)
+        this.reconstructPath(solvedCube, moves, visitedCubes)
 
-        this.statifyStringAndRender(beginningState);
+        this.statifyStringAndRender(solvedCube);
         return moves.reverse();
     }
 
-    doBFSWithMaxDepth(waweCountMax) {
+    solve(waweCountMax) {
 
         let moves = [];
         waweCountMax = 4;
 
-        const beginningState = this.getCurrentState();
-        let thisWawe = [beginningState];
+        const solvedCube = new Cube();
+
+        let thisWawe = [this.cube];
         let nextWawe = [];
         let waweCount = 0;
 
-        let visitedStates = new Map();
+        let visitedCubes = new Map();
 
-        moves = this.#bfs(thisWawe, nextWawe, waweCount, waweCountMax, visitedStates, moves, beginningState);
+        moves = this.#bfs(thisWawe, nextWawe, waweCount, waweCountMax, visitedCubes, moves, solvedCube);
 
         //console.log(moves);
         if (moves.length ===0) {
@@ -53,44 +62,44 @@ export class BFS {
 
     }
 
-    #bfs(thisWawe, nextWawe, waweCount, waweCountMax, visitedStates, moves, beginningState) {
+    #bfs(thisWawe, nextWawe, waweCount, waweCountMax, visitedCubes, moves, solvedCube) {
 
-        visitedStates.set(beginningState, {
-                previousState: null,
-                move: null
+        visitedCubes.set(this.cube.getCurrentState(), {
+                previousCube: null,
+                move: null,
+                cube: this.cube
             });
 
         while (thisWawe.length != 0) {
 
 
-            for (const thisState of thisWawe) {
+            for (const thisCube of thisWawe) {
 
-                this.statifyString(thisState);
+                for (const move of this.cube.MOVES) {
 
-                for (const move of this.MOVES) {
+                    const oppostieMove = this.cube.getOppositeMove(move);
+                    thisCube.moveWithoutAnimation(move);
 
-                    const oppostieMove = this.getOppositeMove(move);
-                    this.moveWithoutAnimation(move);
+                    const newCube = thisCube.clone();
+                    const previousCube = visitedCubes.get(newCube.getCurrentState());
 
-                    const newState = this.getCurrentState();
-                    const previousState = visitedStates.get(newState);
-
-                    if (previousState !== undefined) {
-                        this.moveWithoutAnimation(oppostieMove);
+                    if (previousCube !== undefined) {
+                        thisCube.moveWithoutAnimation(oppostieMove);
                         continue;
                     }
 
-                    visitedStates.set(newState, {
-                            previousState: thisState,
-                            move: move
+                    visitedCubes.set(newCube.getCurrentState(), {
+                            previousCube: thisCube,
+                            move: move,
+                            cube: newCube
                         });
 
-                    if (newState === this.solvedState) {
-                        return this.handleIfSolved(beginningState, visitedStates);
+                    if (newCube.getCurrentState() === solvedCube.getCurrentState()) {
+                        return this.handleIfSolved(solvedCube, visitedCubes);
                     }
 
-                    nextWawe.push(newState);
-                    this.moveWithoutAnimation(oppostieMove);
+                    nextWawe.push(newCube);
+                    thisCube.moveWithoutAnimation(oppostieMove);
                     
                 }
 
