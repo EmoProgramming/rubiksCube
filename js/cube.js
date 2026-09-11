@@ -722,9 +722,9 @@ export class Cube {
 
     }
 
-    scrambleCube() {
+    async scrambleCube(depth) {
         let randomMoves = [];
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < depth; i++) {
 
             const randomMove = this.MOVES[Math.floor(Math.random() * this.MOVES.length)];
             this.moveWithoutAnimation(randomMove);
@@ -733,8 +733,9 @@ export class Cube {
         }
 
         //console.log(randomMoves);
-
         this.#renderCube3D();
+
+        return randomMoves;
     }
 
     stringifyState() {
@@ -754,7 +755,7 @@ export class Cube {
 
     }
 
-    #statifyString(string) {
+    statifyString(string) {
         let index = 0;
         for (const key of Object.keys(this.#sides)) {
             const side = this.#sides[key];
@@ -823,10 +824,12 @@ export class Cube {
     clone() {
         const newCube = new Cube();
 
-        newCube.#statifyString(this.getCurrentState());
+        newCube.statifyString(this.getCurrentState());
 
         return newCube;
     }
 
 }
 
+const cube = new Cube();
+console.log(cube.getCurrentState());
