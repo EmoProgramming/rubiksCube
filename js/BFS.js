@@ -29,12 +29,20 @@ export class BFS {
         return moves.reverse();
     }
 
-    solve(waweCountMax) {
+    solve(maxDepth) {
 
         let moves = [];
-        waweCountMax = 4;
+
+        if (maxDepth === undefined) {
+            maxDepth = 5;
+        }
+        
 
         const beginningState = this.cube.getCurrentState();
+
+        if (beginningState === this.cube.solvedState) {
+            return [];
+        }
 
         let thisWawe = [beginningState];
         let nextWawe = [];
@@ -42,7 +50,7 @@ export class BFS {
 
         let visitedStates = new Map();
 
-        moves = this.#bfs(thisWawe, nextWawe, waweCount, waweCountMax, visitedStates, moves, beginningState);
+        moves = this.#bfs(thisWawe, nextWawe, waweCount, maxDepth, visitedStates, moves, beginningState);
 
         //console.log(moves);
         if (moves.length ===0) {
@@ -55,7 +63,7 @@ export class BFS {
 
     }
 
-    #bfs(thisWawe, nextWawe, waweCount, waweCountMax, visitedStates, moves, beginningState) {
+    #bfs(thisWawe, nextWawe, waweCount, maxDepth, visitedStates, moves, beginningState) {
 
         visitedStates.set(beginningState, {
                 previousState: null,
@@ -98,7 +106,7 @@ export class BFS {
 
             }
 
-        if (waweCount >= waweCountMax) {
+        if (waweCount >= maxDepth) {
             return moves;
         }
 
