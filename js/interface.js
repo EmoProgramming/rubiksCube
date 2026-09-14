@@ -1,81 +1,96 @@
 export class Interface {
 
     #cube;
+    #movesElement;
+    #solutionElement;
 
     constructor(cube) {
         this.#cube = cube;
-        this.#moveWithKey();
+        //this.moveWithKey();
+        //this.addHint();
+        //this.addScrambleButton();
+        this.movesMade = [];
+
+        this.#movesElement = document.querySelector("#movesMade");
+        this.#solutionElement = document.querySelector("#solution");
     }
 
     #mapKeyToSide(key, shiftPressed) {
-        let side;
-        switch (key) {
-            case "f":
-                if (shiftPressed) {
-                    side = "F'";
-                } else {
-                    side = "F";
-                }
-                break;
+        const sides = {
+            f: "F",
+            r: "R",
+            l: "L",
+            d: "D",
+            u: "U",
+            b: "B"
+        };
 
-            case "r":
-                if (shiftPressed) {
-                    side = "R'";
-                } else {
-                    side = "R";
-                }
-                break;
+        let side = sides[key];
 
-            case "l":
-                if (shiftPressed) {
-                    side = "L'";
-                } else {
-                    side = "L";
-                }
-                break;
-
-            case "d":
-                if (shiftPressed) {
-                    side = "D'";
-                } else {
-                    side = "D";
-                }
-                break;
-
-            case "u":
-                if (shiftPressed) {
-                    side = "U'";
-                } else {
-                    side = "U";
-                }
-                break;
-
-            case "b":
-                if (shiftPressed) {
-                    side = "B'";
-                } else {
-                    side = "B";
-                }
-                break;
+        if (shiftPressed) {
+            side += "'";
         }
 
         return side;
     }
 
 
-    #moveWithKey() {
+    moveWithKey() {
 
-        document.addEventListener("keydown", (event) => {
+        document.addEventListener("keydown", async (event) => {
 
             const key = event.key.toLowerCase();
             const isUpper = event.shiftKey;
 
 
-            if (["f", "r", "u", "d", "l", "b"].includes(key)) {
-                const side = this.#mapKeyToSide(key, isUpper);
-                this.#cube.move(side);
-                }
+            if (!["f", "r", "u", "d", "l", "b"].includes(key)) {
+                return;
+            }
+        
+            const side = this.#mapKeyToSide(key, isUpper);
+            
+            const madeMove = await this.#cube.move(side);
+
+            if (madeMove) {
+                this.movesMade.push(side);
+                this.showMovesMade();
+            }
         });
 
+    }
+
+    showMovesMade() {
+        this.#movesElement.textContent =
+            `Moves made: ${this.movesMade.join(" ")}`;
+    }
+
+    scramble() {
+        let depth = this.getDepthForScramble();
+
+        if (!Number.isInteger(depth) || depth < 1) {
+            depth = 5;
+        }
+
+        this.#cube.scrambleCube(depth);
+    }
+
+
+    getDepthForScramble() {
+        const input = document.getElementById("scrambleDepth");
+
+        if (input == null) {
+            return null;
+        }
+        return Number(input.value);
+        
+    }
+
+    showSolution(moves) {
+        if (moves === "Not found") {
+            this.#solutionElement.textContent = "Not found";
+            return;
+        };
+        this.#solutionElement.textContent =
+            `Solution: ${moves.join(" ")}`;
     }
 }
