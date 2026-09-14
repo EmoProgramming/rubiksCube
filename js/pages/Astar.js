@@ -1,17 +1,25 @@
-import { Astar } from "../ASTAR.js";
+import { ASTAR } from "../ASTAR.js";
 import { Cube } from "../cube.js";
 import { Interface } from "../interface.js";
 
-export function Astar() {
+export function AstarPage() {
     const cube = new Cube();
-    const cubeController = new Interface(cube);
-    const solver = new Astar(cube);
+    const ui = new Interface(cube);
+    const solver = new ASTAR(cube);
 
-    const depth = 4
+    ui.moveWithKey();
 
-    cube.scrambleCube(depth);
-    
-    const solution = solver.solve(5);
+    document.querySelector("#scrambleButton")
+        .addEventListener("click", () => {
+            ui.scramble();
+        });
 
-    console.log(solution);
+    document.querySelector("#solveButton")
+        .addEventListener("click", () => {
+            const solution = solver.solve();
+
+            ui.showSolution(solution);
+
+            //console.log(solution);
+        });
 }
