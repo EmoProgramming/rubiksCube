@@ -713,11 +713,12 @@ export class Cube {
     async move(side) {
 
         if (this.#animating) {
-            return;
+            return false;
         } else {
             this.#animating = true;
             await this.#animateAndMove(side);
             this.#animating = false;
+            return true;
         }
 
     }
@@ -830,6 +831,3 @@ export class Cube {
     }
 
 }
-
-const cube = new Cube();
-console.log(cube.getCurrentState());
