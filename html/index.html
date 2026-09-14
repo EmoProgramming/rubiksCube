@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/solver.css">
     <title>Document</title>
 </head>
 <body data-page="home">
@@ -11,8 +12,40 @@
     <div id="navigation"></div>
 
 
-
 <main>
+
+    <section id="cube-controls">
+
+        <div class="controls-row">
+            <button id="scrambleButton">Scramble Cube</button>
+
+            <label>
+                Depth:
+                <input
+                    id="scrambleDepth"
+                    type="number"
+                    min="1"
+                    value="2"
+                >
+            </label>
+        </div>
+
+    </section>
+
+    <section id="cube-info">
+
+        <p id="hint">
+            Press F, B, L, R, D, U to move Front, Back, Left, Right,
+            Down and Up side of Cube.<br>
+            Hold SHIFT and press keys above to make opposite move.
+        </p>
+
+        <p id="movesMade"></p>
+
+        <p id="solution"></p>
+
+    </section>
+
     <div class="scene">
         <div class="cube" id="cube"></div>
     </div>
@@ -21,9 +54,10 @@
         
     </div>
 
+
 </main>
 
+<script type="module" src="../js/main.js"></script>
 <script src="../js/script.js"></script>
-<script type="module" src="../js/cube.js"></script>
 </body>
 </html>
