@@ -7,6 +7,11 @@ export class DFS {
         const beginningState = this.cube.getCurrentState();
         const currDepth = 0;
 
+        //console.log(maxDepth);
+        if (maxDepth === undefined) {
+            maxDepth = 5;
+        }
+
         const visitedStates = new Map();
         const moves = [];
 
