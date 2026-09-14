@@ -4,14 +4,22 @@ import { Interface } from "../interface.js";
 
 export function iddfsPage() {
     const cube = new Cube();
-    const cubeController = new Interface(cube);
+    const ui = new Interface(cube);
     const solver = new IDDFS(cube);
 
-    const depth = 4;
+    ui.moveWithKey();
 
-    cube.scrambleCube(depth);
-    
-    const solution = solver.solve(6);
+    document.querySelector("#scrambleButton")
+        .addEventListener("click", () => {
+            ui.scramble();
+        });
 
-    console.log(solution);
+    document.querySelector("#solveButton")
+        .addEventListener("click", () => {
+            const solution = solver.solve();
+
+            ui.showSolution(solution);
+
+            console.log(solution);
+        });
 }

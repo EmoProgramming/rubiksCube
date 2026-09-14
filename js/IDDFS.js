@@ -6,6 +6,10 @@ export class IDDFS {
     }
 
     solve(maxDepth) {
+        if (maxDepth === undefined) {
+            maxDepth = 5;
+        }
+        
         let moves = [];
         const DFSSolver = new DFS(this.cube);
 
